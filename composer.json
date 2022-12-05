@@ -1,0 +1,31 @@
+{
+    "name": "dskripchenko/orchid-extra",
+    "description": "Extra Abstract Classes For Orchid.",
+    "license": "MIT",
+    "homepage": "https://github.com/dskripchenko/orchid-extra",
+    "keywords": [
+        "laravel",
+        "orchid"
+    ],
+    "authors": [
+        {
+            "name": "Denis Skripchenko",
+            "email": "denskrp90@gmail.com"
+        }
+    ],
+    "require": {
+        "ext-json": "*",
+        "laravel/framework": "6.*|7.*|8.*|9.*",
+        "orchid/platform": "*"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dskripchenko\\OrchidExtra\\": [
+                "src/"
+            ]
+        }
+    }
+}
