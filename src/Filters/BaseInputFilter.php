@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Dskripchenko\OrchidExtra\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Orchid\Filters\Filter;
-use Orchid\Screen\Fields\Select;
+use Orchid\Screen\Fields\Input;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-abstract class AbstractSelectFilter extends Filter
+class BaseInputFilter extends Filter
 {
     /**
      * @var string Название фильтра
@@ -30,14 +29,30 @@ abstract class AbstractSelectFilter extends Filter
     protected string $filterField;
 
     /**
-     * @var string Отображаемое значение фильтра
+     * @var string Оператор сравнения записей =|!=|>|<|like
      */
-    protected string $entityName = 'name';
+    protected string $filterOperator = 'like';
 
     /**
-     * @var string Фактическое значение фильтра
+     * @param string $name
+     * @param string $field
+     * @param string $operator
+     * @param string|null $parameter
      */
-    protected string $entityKey = 'id';
+    public function __construct(
+        string $name,
+        string $field,
+        string $operator = 'like',
+        string $parameter = null
+    ) {
+        $this->name = $name;
+        $this->filterField = $field;
+        $this->filterOperator = $operator;
+        $this->parameter = $parameter ?: $field;
+
+        $this->parameters = $this->parameters();
+        parent::__construct();
+    }
 
     /**
      * @return string
@@ -55,33 +70,6 @@ abstract class AbstractSelectFilter extends Filter
         return [$this->parameter];
     }
 
-    public function __construct()
-    {
-        $this->parameters = $this->parameters();
-        parent::__construct();
-    }
-
-    /**
-     * @return Model
-     */
-    abstract public function getEntity(): Model;
-
-    /**
-     * @return Builder
-     */
-    public function getEntityBuilder(): Builder
-    {
-        return $this->getEntity()->newQuery();
-    }
-
-    /**
-     * @return string
-     */
-    public function getEntityClass(): string
-    {
-        return get_class($this->getEntity());
-    }
-
     /**
      * @return array
      * @throws ContainerExceptionInterface
@@ -90,11 +78,9 @@ abstract class AbstractSelectFilter extends Filter
     public function display(): array
     {
         return [
-            Select::make($this->parameter)
-                ->fromModel($this->getEntityClass(), $this->entityName, $this->entityKey)
-                ->empty()
-                ->value($this->request->get($this->parameter))
-                ->title($this->name()),
+            Input::make($this->parameter)
+                ->title($this->name())
+                ->value($this->request->get($this->parameter)),
         ];
     }
 
@@ -106,8 +92,12 @@ abstract class AbstractSelectFilter extends Filter
      */
     public function run(Builder $builder): Builder
     {
+        $filterValue = $this->request->get($this->parameter);
+        if ($this->filterOperator === 'like') {
+            $filterValue = "%{$filterValue}%";
+        }
         return $builder
-            ->where($this->filterField, $this->request->get($this->parameter));
+            ->where($this->filterField, $this->filterOperator, $filterValue);
     }
 
     /**
@@ -117,13 +107,7 @@ abstract class AbstractSelectFilter extends Filter
      */
     public function value(): string
     {
-        /**
-         * @var Model $item
-         */
-        $item = $this->getEntityBuilder()
-            ->where($this->entityKey, $this->request->get($this->parameter))
-            ->first();
-
-        return "{$this->name} : {$item->getAttributeValue($this->entityName)}";
+        $filterValue = $this->request->get($this->parameter);
+        return "{$this->name} {$this->filterOperator} {$filterValue}";
     }
 }

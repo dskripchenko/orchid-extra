@@ -37,9 +37,10 @@ abstract class BaseEditScreen extends Screen
 
     /**
      * @param Model $entity
+     * @param Request $request
      * @return array
      */
-    abstract protected function getSaveEntityRules(Model $entity): array;
+    abstract protected function getSaveEntityRules(Model $entity, Request $request): array;
 
     /**
      * @var bool
@@ -172,16 +173,28 @@ abstract class BaseEditScreen extends Screen
     public function save(Request $request): RedirectResponse
     {
         $entity = $this->getCurrentEntity();
-        $request->validate($this->getSaveEntityRules($entity));
+        $request->validate($this->getSaveEntityRules($entity, $request));
         $routeKey = $this->getRouteParameterKey();
         $data = $request->get($routeKey);
-        $entity->fill($data);
-        $entity->save();
+        $entity = $this->saving($entity, $data);
 
         Alert::success('Данные успешно обновлены');
 
         return redirect()->route($this->redirectAfterSavingRouteName, [
             $routeKey => $entity
         ]);
+    }
+
+    /**
+     * @param Model $entity
+     * @param array $data
+     * @return Model
+     */
+    public function saving(Model $entity, array $data): Model
+    {
+        $entity->fill($data);
+        $entity->save();
+
+        return $entity;
     }
 }

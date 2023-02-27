@@ -6,11 +6,12 @@ namespace Dskripchenko\OrchidExtra\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use Orchid\Filters\Filter;
-use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\DateRange;
+use Orchid\Screen\Fields\DateTimer;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-abstract class AbstractInputFilter extends Filter
+class BaseDateFilter extends Filter
 {
     /**
      * @var string Название фильтра
@@ -29,15 +30,14 @@ abstract class AbstractInputFilter extends Filter
     protected string $filterField;
 
     /**
-     * @var string Оператор сравнения записей =|!=|>|<|like
+     * @var string Формат даты
      */
-    protected string $filterOperator = 'like';
+    protected string $dateFormat = 'Y-m-d';
 
-    public function __construct()
-    {
-        $this->parameters = $this->parameters();
-        parent::__construct();
-    }
+    /**
+     * @var bool Фильтровать по промежутку дат
+     */
+    protected bool $range = true;
 
     /**
      * @return string
@@ -56,14 +56,46 @@ abstract class AbstractInputFilter extends Filter
     }
 
     /**
+     * @param string $name
+     * @param string $field
+     * @param string $format
+     * @param bool $range
+     * @param string|null $parameter
+     */
+    public function __construct(
+        string $name,
+        string $field,
+        string $format = 'Y-m-d',
+        bool $range = true,
+        string $parameter = null
+    ) {
+        $this->name = $name;
+        $this->filterField = $field;
+        $this->dateFormat = $format;
+        $this->range = $range;
+        $this->parameter = $parameter ?: $field;
+
+        $this->parameters = $this->parameters();
+        parent::__construct();
+    }
+
+    /**
      * @return array
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
     public function display(): array
     {
+        if ($this->range) {
+            return [
+                DateRange::make($this->parameter)
+                    ->title($this->name())
+                    ->value($this->request->get($this->parameter))
+            ];
+        }
         return [
-            Input::make($this->parameter)
+            DateTimer::make($this->parameter)
+                ->format($this->dateFormat)
                 ->title($this->name())
                 ->value($this->request->get($this->parameter)),
         ];
@@ -78,11 +110,11 @@ abstract class AbstractInputFilter extends Filter
     public function run(Builder $builder): Builder
     {
         $filterValue = $this->request->get($this->parameter);
-        if ($this->filterOperator === 'like') {
-            $filterValue = "%{$filterValue}%";
+        if (is_array($filterValue)) {
+            return $builder->whereBetween($this->filterField, $filterValue);
         }
         return $builder
-            ->where($this->filterField, $this->filterOperator, $filterValue);
+            ->where($this->filterField, $filterValue);
     }
 
     /**
@@ -93,6 +125,11 @@ abstract class AbstractInputFilter extends Filter
     public function value(): string
     {
         $filterValue = $this->request->get($this->parameter);
-        return "{$this->name} {$this->filterOperator} {$filterValue}";
+        if (is_array($filterValue)) {
+            $start = data_get($filterValue, 'start');
+            $end = data_get($filterValue, 'end');
+            return "{$start} <= {$this->name} <= {$end}";
+        }
+        return "{$this->name} : {$filterValue}";
     }
 }

@@ -6,12 +6,11 @@ namespace Dskripchenko\OrchidExtra\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use Orchid\Filters\Filter;
-use Orchid\Screen\Fields\DateRange;
-use Orchid\Screen\Fields\DateTimer;
+use Orchid\Screen\Fields\Select;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-abstract class AbstractDateFilter extends Filter
+class BaseSelectFromOptionsFilter extends Filter
 {
     /**
      * @var string Название фильтра
@@ -24,20 +23,15 @@ abstract class AbstractDateFilter extends Filter
     protected string $parameter;
 
     /**
+     * @var array Список доступных значений фильтра
+     */
+    protected array $options;
+
+    /**
      * @var string Поле по которому производится фильтрация
      * Используется в дефолтном методе run
      */
     protected string $filterField;
-
-    /**
-     * @var string Формат даты
-     */
-    protected string $dateFormat = 'Y-m-d';
-
-    /**
-     * @var bool Фильтровать по промежутку дат
-     */
-    protected bool $range = true;
 
     /**
      * @return string
@@ -55,8 +49,23 @@ abstract class AbstractDateFilter extends Filter
         return [$this->parameter];
     }
 
-    public function __construct()
-    {
+    /**
+     * @param string $name
+     * @param string $field
+     * @param array $options
+     * @param string|null $parameter
+     */
+    public function __construct(
+        string $name,
+        string $field,
+        array $options,
+        string $parameter = null
+    ) {
+        $this->name = $name;
+        $this->filterField = $field;
+        $this->options = $options;
+        $this->parameter = $parameter ?: $field;
+
         $this->parameters = $this->parameters();
         parent::__construct();
     }
@@ -68,18 +77,12 @@ abstract class AbstractDateFilter extends Filter
      */
     public function display(): array
     {
-        if ($this->range) {
-            return [
-                DateRange::make($this->parameter)
-                    ->title($this->name())
-                    ->value($this->request->get($this->parameter))
-            ];
-        }
         return [
-            DateTimer::make($this->parameter)
-                ->format($this->dateFormat)
-                ->title($this->name())
-                ->value($this->request->get($this->parameter)),
+            Select::make($this->parameter)
+                ->options($this->options)
+                ->empty()
+                ->value($this->request->get($this->parameter))
+                ->title($this->name()),
         ];
     }
 
@@ -92,11 +95,10 @@ abstract class AbstractDateFilter extends Filter
     public function run(Builder $builder): Builder
     {
         $filterValue = $this->request->get($this->parameter);
-        if (is_array($filterValue)) {
-            return $builder->whereBetween($this->filterField, $filterValue);
+        if (!$filterValue) {
+            return $builder;
         }
-        return $builder
-            ->where($this->filterField, $filterValue);
+        return $builder->where($this->filterField, $filterValue);
     }
 
     /**
@@ -107,10 +109,8 @@ abstract class AbstractDateFilter extends Filter
     public function value(): string
     {
         $filterValue = $this->request->get($this->parameter);
-        if (is_array($filterValue)) {
-            $start = data_get($filterValue, 'start');
-            $end = data_get($filterValue, 'end');
-            return "{$start} <= {$this->name} <= {$end}";
+        if (!$filterValue) {
+            return '';
         }
         return "{$this->name} : {$filterValue}";
     }

@@ -10,7 +10,7 @@ use Orchid\Screen\Fields\Select;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-abstract class AbstractSwitcherFilter extends Filter
+class BaseSwitcherFilter extends Filter
 {
     /**
      * @var string Название фильтра
@@ -44,8 +44,17 @@ abstract class AbstractSwitcherFilter extends Filter
         return [$this->parameter];
     }
 
-    public function __construct()
+    /**
+     * @param string $name
+     * @param string $field
+     * @param string|null $parameter
+     */
+    public function __construct(string $name, string $field, string $parameter = null)
     {
+        $this->name = $name;
+        $this->filterField = $field;
+        $this->parameter = $parameter ?: $field;
+
         $this->parameters = $this->parameters();
         parent::__construct();
     }
