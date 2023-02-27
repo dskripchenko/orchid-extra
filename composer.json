@@ -1,6 +1,6 @@
 {
     "name": "dskripchenko/orchid-extra",
-    "description": "Extra Abstract Classes For Orchid.",
+    "description": "Extra Classes For Orchid.",
     "license": "MIT",
     "homepage": "https://github.com/dskripchenko/orchid-extra",
     "keywords": [
@@ -25,6 +25,13 @@
         "psr-4": {
             "Dskripchenko\\OrchidExtra\\": [
                 "src/"
+            ]
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Dskripchenko\\OrchidExtra\\Providers\\OrchidExtraServiceProvider"
             ]
         }
     }

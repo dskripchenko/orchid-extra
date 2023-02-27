@@ -12,12 +12,18 @@ or add
 
 to the ```require``` section of your `composer.json` file.
 
+## Facades
+
+* `Selection`
+
 ## Filters
 
-* `AbstractDateFilter`
-* `AbstractInputFilter`
-* `AbstractSelectFilter`
-* `AbstractSwitcherFilter`
+* `BaseDateFilter`
+* `BaseInputFilter`
+* `BaseSwitcherFilter`
+* `BaseSelectFromModelFilter`
+* `BaseSelectFromQueryFilter`
+* `BaseSelectFromOptionsFilter`
 
 ## Screens
 
