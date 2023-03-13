@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\DB;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
@@ -68,8 +69,28 @@ abstract class BaseListScreen extends Screen
 
         $query = $this->prepareQuery($query);
 
+        $paginator = $query->paginate();
+
+        $currentPage = $paginator->currentPage();
+        $lastPage = $paginator->lastPage();
+
+        if ($currentPage > $lastPage) {
+            /** @var Request $request */
+            $request = request();
+            /** @var Route $route */
+            $route = $request->route();
+            $routeName = $route->getName();
+            $routeParameters = $route->parameters;
+
+            redirect()->route($routeName, array_merge($routeParameters, [
+                'page' => $lastPage
+            ]))->send();
+
+            return [];
+        }
+
         return [
-            $entity->getTable() => $query->paginate(),
+            $entity->getTable() => $paginator,
         ];
     }
 
