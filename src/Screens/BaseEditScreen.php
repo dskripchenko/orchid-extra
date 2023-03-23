@@ -16,16 +16,6 @@ use Orchid\Support\Facades\Layout;
 abstract class BaseEditScreen extends Screen
 {
     /**
-     * @var string|null
-     */
-    public ?string $name = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $description = null;
-
-    /**
      * @return Model
      */
     abstract protected function entity(): Model;

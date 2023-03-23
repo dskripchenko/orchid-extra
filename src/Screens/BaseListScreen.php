@@ -13,7 +13,6 @@ use Throwable;
 
 abstract class BaseListScreen extends Screen
 {
-
     /**
      * @return Model
      */
