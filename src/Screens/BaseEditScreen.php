@@ -19,12 +19,12 @@ abstract class BaseEditScreen extends Screen
     /**
      * @var string|null
      */
-    protected ?string $name = null;
+    public ?string $name = null;
 
     /**
      * @var string|null
      */
-    protected ?string $description = null;
+    public ?string $description = null;
 
     /**
      * @return Model
