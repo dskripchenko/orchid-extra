@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Orchid\Screen\Action;
 use Orchid\Screen\Actions\Button;
@@ -41,6 +42,13 @@ abstract class BaseEditScreen extends Screen
      * @return array
      */
     abstract protected function getSaveEntityRules(Model $entity, Request $request): array;
+
+
+    protected function getSaveEntityRuleMessages(Model $entity, Request $request): array
+    {
+        return [];
+    }
+
 
     /**
      * @var bool
@@ -173,7 +181,12 @@ abstract class BaseEditScreen extends Screen
     public function save(Request $request): RedirectResponse
     {
         $entity = $this->getCurrentEntity();
-        $request->validate($this->getSaveEntityRules($entity, $request));
+        $rules = $this->getSaveEntityRules($entity, $request);
+        $messages = $this->getSaveEntityRuleMessages($entity, $request);
+        $input = $request->input();
+
+        Validator::validate($input, $rules, $messages);
+
         $routeKey = $this->getRouteParameterKey();
         $data = $request->get($routeKey);
         $entity = $this->saving($entity, $data);

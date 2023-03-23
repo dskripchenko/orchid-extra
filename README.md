@@ -7,7 +7,7 @@ $ php composer.phar require dskripchenko/orchid-extra
 or add
 
 ```
-"dskripchenko/laravel-logstash": "^1.0"
+"dskripchenko/orchid-extra": "^1.0"
 ```
 
 to the ```require``` section of your `composer.json` file.
