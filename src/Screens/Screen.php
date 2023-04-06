@@ -6,24 +6,25 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Orchid\Screen\Repository;
 use Orchid\Screen\Screen as BaseScreen;
 use Throwable;
 
 abstract class Screen extends BaseScreen
 {
     /**
-     * @param Request $request
-     * @param ...$parameters
+     * @param Repository $repository
      *
-     * @return Factory|View|RedirectResponse|\Illuminate\View\View|mixed
-     * @throws Throwable
+     * @return View
      */
-    public function handle(Request $request, ...$parameters)
+    public function build(Repository $repository): View
     {
+        /** @var Request $request */
+        $request = request();
         $this->booting($request->all());
-
-        return parent::handle($request, ...$parameters);
+        return parent::build($repository);
     }
+
 
     /**
      * @param  string  $method
