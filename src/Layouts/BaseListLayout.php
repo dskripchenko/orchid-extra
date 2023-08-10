@@ -40,12 +40,12 @@ abstract class BaseListLayout extends Table
                     $actions = [];
                     $editRoute = $this->getEditRoute($model);
                     if ($editRoute) {
-                        $actions[] = Link::make('Изменить')->icon('pencil')->href($editRoute);
+                        $actions[] = Link::make('Изменить')->icon('bs.pencil')->href($editRoute);
                     }
 
                     $detailRoute = $this->getDetailRoute($model);
                     if ($detailRoute) {
-                        $actions[] = Link::make('Детальный просмотр')->icon('eye')->href($detailRoute);
+                        $actions[] = Link::make('Детальный просмотр')->icon('bs.eye')->href($detailRoute);
                     }
 
                     $enableFields = ['is_active', 'enable', 'enabled'];
@@ -53,7 +53,7 @@ abstract class BaseListLayout extends Table
                     foreach ($enableFields as $activityKey) {
                         if (array_key_exists($activityKey, $attributes)) {
                             $actions[] = Button::make(!$model->getAttribute($activityKey) ? 'Опубликовать' : 'Скрыть')
-                                ->icon(!$model->getAttribute($activityKey) ? 'check' : 'close')
+                                ->icon(!$model->getAttribute($activityKey) ? 'bs.check' : 'bs.x')
                                 ->method('publishing', [
                                     'field' => $activityKey,
                                     'id' => $model->id
@@ -64,13 +64,13 @@ abstract class BaseListLayout extends Table
 
 
                     return DropDown::make()
-                        ->icon('settings')
+                        ->icon('bs.gear')
                         ->list([
                             ...$actions,
 
                             Button::make('Удалить')
                                 ->confirm('Вы действительно хотите удалить запись?')
-                                ->icon('trash')
+                                ->icon('bs.trash')
                                 ->method('deleting', [
                                     'id' => $model->id
                                 ])

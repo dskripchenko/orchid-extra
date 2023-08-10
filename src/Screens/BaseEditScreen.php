@@ -129,11 +129,11 @@ abstract class BaseEditScreen extends Screen
     {
         return [
             Button::make('Сохранить')
-                ->icon('check')
+                ->icon('bs.check')
                 ->method('save'),
 
             Button::make('Удалить')
-                ->icon('trash')
+                ->icon('bs.trash')
                 ->confirm('Вы действительно хотите удалить запись?')
                 ->method('remove')
                 ->canSee($this->exist),
