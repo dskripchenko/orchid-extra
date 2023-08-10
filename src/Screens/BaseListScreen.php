@@ -56,11 +56,10 @@ abstract class BaseListScreen extends Screen
         $entity = $this->entity();
 
         $query = $entity->newQuery()
-            ->filters()
             ->defaultSort('id', 'desc');
 
         foreach ($this->getSelections() as $selection) {
-            $query->filtersApplySelection($selection);
+            $query->filters($selection);
         }
 
         $query->with($this->getQueryWithParameters());
