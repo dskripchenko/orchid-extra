@@ -176,15 +176,40 @@ abstract class BaseEditScreen extends Screen
 
         Validator::validate($input, $rules, $messages);
 
+        $input = $request->all();
         $routeKey = $this->getRouteParameterKey();
         $data = $request->get($routeKey);
+        $entity = $this->beforeSaving($entity, $input);
         $entity = $this->saving($entity, $data);
+        $entity = $this->afterSaving($entity, $input);
 
         Alert::success('Данные успешно обновлены');
 
         return redirect()->route($this->redirectAfterSavingRouteName, [
-            $routeKey => $entity
+            $routeKey => $entity,
         ]);
+    }
+
+    /**
+     * @param Model $entity
+     * @param array $input
+     *
+     * @return Model
+     */
+    public function beforeSaving(Model $entity, array $input): Model
+    {
+        return $entity;
+    }
+
+    /**
+     * @param Model $entity
+     * @param array $input
+     *
+     * @return Model
+     */
+    public function afterSaving(Model $entity, array $input): Model
+    {
+        return $entity;
     }
 
     /**
