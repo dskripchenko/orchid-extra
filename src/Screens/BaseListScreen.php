@@ -45,7 +45,7 @@ abstract class BaseListScreen extends Screen
      */
     protected function prepareQuery(Builder $query): Builder
     {
-        return $query;
+        return $query->defaultSort('id', 'desc');
     }
 
     /**
@@ -55,8 +55,7 @@ abstract class BaseListScreen extends Screen
     {
         $entity = $this->entity();
 
-        $query = $entity->newQuery()
-            ->defaultSort('id', 'desc');
+        $query = $entity->newQuery();
 
         foreach ($this->getSelections() as $selection) {
             $query->filters($selection);
