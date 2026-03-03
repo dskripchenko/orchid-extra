@@ -49,8 +49,11 @@ class BaseSwitcherFilter extends Filter
      * @param string $field
      * @param string|null $parameter
      */
-    public function __construct(string $name, string $field, string $parameter = null)
-    {
+    public function __construct(
+        string $name,
+        string $field,
+        ?string $parameter = null
+    ) {
         $this->name = $name;
         $this->filterField = $field;
         $this->parameter = $parameter ?: $field;
